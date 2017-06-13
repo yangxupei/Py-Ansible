@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+{% block content %}
+<script>
+        // 编辑表单
+    function get_edit_info($this)
+    {
+        var md_ip_add = $($this).parent().parent("tr").find("td:eq(1)").html()
+        var md_app_name_en = $($this).parent().parent("tr").find("td:eq(2)").html()
+        var md_app_owner = $($this).parent().parent("tr").find("td:eq(3)").html()
+        var md_app_platform = $($this).parent().parent("tr").find("td:eq(4)").html()
+        var md_description = $($this).parent().parent("tr").find("td:eq(5)").html()
+
+        if(!$this)
+        {
+            alert('Error！');
+            return false;
+        }
+
+    $.ajax(
+    {
+         success:function ()
+            {
+                $("#md_ip_add").val(md_ip_add);
+                $("#md_app_name_en").val(md_app_name_en);
+                $("#md_app_owner").val(md_app_owner);
+                $("#md_app_platform").val(md_app_platform);
+                $("#md_description").val(md_description);
+            },
+         error:function()
+            {
+                alert('请求出错');
+            },
+          complete:function()
+            {
+                // $('#tips').hide();
+            }
+    });
+        return false;
+    }
+    
+    function update_host_info() {
+        var ip_add = $('#md_ip_add').val();
+        var app_name_en = $('#md_app_name_en').val();
+        var app_owner = $('#md_app_owner').val();
+        var app_platform = $('#md_app_platform').val();
+        var description = $('#md_description').val();
+        $.ajax({
+            type: "POST",
+            url: "/hosts_info/update_app",
+            data:{
+                "ip_add": ip_add,
+                "app_name_en": app_name_en,
+                "app_owner": app_owner,
+                "app_platform": app_platform,
+                "description": description
+            },
+
+            success: function(){
+                $(function() {
+                    $('#updateInfoModal').modal('hide')
+                });
+                swal({
+                    title: "更新成功！",
+                    text: "已录入数据库",
+                    timer: 500,
+                    showConfirmButton: false
+                },
+                        function () {
+                        setTimeout(function(){
+                            window.location.reload();
+                        }, 500);
+                });
+            },
+            error: function () {
+                alert("异常！");
+            },
+        })
+    }
+
+
+    function add_host_info() {
+        var ip_add = $('#add_ip_add').val();
+        var app_name_en = $('#add_app_name_en').val();
+        var app_owner = $('#add_app_owner').val();
+        var app_platform = $('#add_app_platform').val();
+        var description = $('#add_description').val();
+        $.ajax({
+            type: "POST",
+            url: "/hosts_info/addhost",
+            data:{
+                "ip_add": ip_add,
+                "app_name_en": app_name_en,
+                "app_owner": app_owner,
+                "app_platform": app_platform,
+                "description": description
+            },
+
+            success: function(){
+                $(function() {
+                    $('#addInfoModal').modal('hide')
+                });
+                swal({
+                    title: "新增成功！",
+                    text: "已录入数据库",
+                    timer: 500,
+                    showConfirmButton: false
+                },
+                        function () {
+                        setTimeout(function(){
+                            window.location.reload();
+                        }, 500);
+                });
+            },
+            error: function () {
+                alert("异常！");
+            },
+        })
+    }
+
+    function delete_info($this) {
+        var del_ip_add = $($this).parent().parent("tr").find("td:eq(1)").html()
+        $.ajax({
+            type: "POST",
+            url: "/hosts_info/delhost",
+            data:{
+                "del_ip_add": del_ip_add
+            },
+
+            success: function(){
+//                swal({
+//                    title: "删除成功！",
+//                    text: "已从数据库删除",
+//                    timer: 500,
+//                    showConfirmButton: false
+//                },
+//                        function () {
+//                        setTimeout(function(){
+//                            window.location.reload();
+//                        }, 500);
+//                });
+                swal({
+                  title: "确定删除该主机？",
+                  text: "此操作会删除关于该主机的所有信息！",
+                  type: "warning",
+                  showCancelButton: true,
+                  confirmButtonColor: "#DD6B55",
+                  confirmButtonText: "确定！",
+                  cancelButtonText: "取消",
+                  closeOnConfirm: false
+                },
+                function(){
+                  swal("删除成功", "该主机已从数据库删除！", "success");
+                });
+            },
+            error: function () {
+                alert("异常！");
+            },
+        })
+    }
+
+
+</script>
+
+<HR>
+<form class="form-horizontal" role="form" action="" method="post" name="app_add">
+    {{ hostsform.hidden_tag() }}
+    <div class="row col-xs-12 form-group">
+            <div class="col-xs-2  col-xs-offset-8">
+                {{ hostsform.ip_address(class="form-control", placeholder="输入IP地址") }}
+            </div>
+        <div class="col-xs-2">
+            <button class="btn btn-info btn-search" style="margin-left:3px">查询</button>
+            <button type="button" class="btn btn-primary" data-toggle="modal" value="新增" data-target="#addInfoModal">新增</button>
+         </div>
+    </div>
+</form>
+
+<div class="row">
+    <div class="col-md-12 col-md-offset-0">
+            <table align="center" class="table table-condensed table-bordered" data-toggle="table">
+              <!--<caption>服务器列表信息如下</caption>-->
+              <thead>
+                <tr class="info">
+                    <th>序号</th>
+                    <th>IP地址</th>
+                    <th>应用名称</th>
+                    <th>owner</th>
+                    <th>所属平台</th>
+                    <th>备注</th>
+                    <th>操作</th>
+                </tr>
+              </thead>
+             {% for result in db_result %}
+              <tbody>
+                <tr>
+                    <td>{{result[0]}}</td>
+                    <td>{{result[1]}}</td>
+                    <td>{{result[2]}}</td>
+                    <td>{{result[3]}}</td>
+                    <td>{{result[4]}}</td>
+                    <td>{{result[5]}}</td>
+                    <td class="col-md-2">
+                        <!--<a href="#" class="btn btn-info btn-sm" disabled="disabled"><span class="glyphicon glyphicon-refresh"></span></a>-->
+                        <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" onclick="get_edit_info(this)" data-target="#updateInfoModal"><span class="glyphicon glyphicon-edit"></span>编辑</button>
+                        <button type="button" class="btn btn-danger btn-sm" disabled="disabled" onclick="delete_info(this)"><span class="glyphicon glyphicon-remove"></span>删除</button>
+                    </td>
+                </tr>
+              </tbody>
+             {% endfor %}
+            </table>
+    </div>
+                                                                      <!-- 更新信息模态框（Modal） -->
+        <form method="post" action="" class="form-horizontal" role="form" id="update_form_data" onsubmit="" style="margin: 20px;">
+        <div class="modal fade" id="updateInfoModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="updateModalLabel">
+                            主机信息
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label for="md_ip_add" class="col-sm-2 control-label">IP地址</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" disabled="disabled" name="md_ip_add" value="{md_ip_add}" id="md_ip_add">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="md_app_name_en" class="col-sm-2 control-label">应用名称</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="md_app_name_en" value="{md_app_name_en}" id="md_app_name_en" placeholder="输入应用名称">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="md_app_owner" class="col-sm-2 control-label">owner</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="md_app_owner" value="{md_app_owner}" id="md_app_owner" placeholder="输入应用owner">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="md_app_platform" class="col-sm-2 control-label">所属平台</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="md_app_platform" value="{md_app_platform}" id="md_app_platform" placeholder="输入所属平台">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="md_description" class="col-sm-2 control-label">备注</label>
+                                <div class="col-sm-9">
+                                    <textarea  class="form-control"  name="md_description" value="{md_description}" id="md_description" placeholder="备注"></textarea>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="update_host_info();">
+                            提交
+                        </button><span id="tip"> </span>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+        </form>
+
+                                                                      <!-- 新增信息模态框（Modal） -->
+        <form method="post" action="" class="form-horizontal" role="form" id="add_form_data" onsubmit="" style="margin: 20px;">
+        <div class="modal fade" id="addInfoModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="addModalLabel">
+                            录入主机信息
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label for="add_ip_add" class="col-sm-2 control-label">IP地址</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="add_ip_add" value="" id="add_ip_add" placeholder="输入合法IP地址">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="add_app_name_en" class="col-sm-2 control-label">应用名称</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="add_app_name_en" value="" id="add_app_name_en" placeholder="输入应用名称">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="add_app_owner" class="col-sm-2 control-label">owner</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="add_app_owner" value="" id="add_app_owner" placeholder="输入应用owner">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="add_app_platform" class="col-sm-2 control-label">所属平台</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="add_app_platform" value="" id="add_app_platform" placeholder="输入所属平台">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="add_description" class="col-sm-2 control-label">备注</label>
+                                <div class="col-sm-9">
+                                    <textarea  class="form-control"  name="add_description" value="" id="add_description" placeholder="备注"></textarea>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="add_host_info();">
+                            提交
+                        </button><span id="add_tip"> </span>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+        </form>
+</div>
+
+{% endblock %}
+

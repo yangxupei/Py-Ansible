@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block content %}
+<script type="text/javascript">
+//    $(function () {
+//        var yml_name = $('#yml_name option:selected').html();
+//        $("#yml_name").change(function () {
+//        yml_name = $(this).find("option:selected").html();
+//        $.post("/hosts_maintain",{"yml_name":yml_name});
+//    });
+//  });
+
+    function update_hosts_file() {
+        var hosts_file_text = $('#hosts_file_text').val();
+        $.ajax({
+            type: "POST",
+            url: "/hosts_maintain",
+            data:{
+                "hosts_file_text": hosts_file_text
+            },
+
+            success: function(){
+                swal({
+                    title: "更新成功！",
+                    text: "已写入hosts文件",
+                    timer: 500,
+                    showConfirmButton: false
+                },
+                        function () {
+                        setTimeout(function(){
+                            window.location.reload();
+                        }, 500);
+                });
+            },
+            error: function () {
+                alert("异常！");
+            },
+        })
+    }
+
+
+    $(function () {
+        $("#des .btn").click(function(e){
+            e.preventDefault();
+            $.post("/hosts_maintain", {'button_index' : $("#des .btn").index(this)}
+            );
+        });
+    });
+</script>
+
+<form role="form" action="" method="post">
+    <div class="row">
+        <div class="col-xs-4 col-xs-offset-0" id="des">
+            <ul class="nav navbar-nav" contenteditable="false">
+                    <li><a href="#">Hosts文件信息</a></li>
+                    <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">YML文件信息 <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        {% for file_name in file_list %}
+                        <li><a href="#">{{ file_name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                    </li>
+            </ul>
+        </div>
+
+        <div class="col-xs-8">
+            <h4>Test Ansible</h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-4">
+            <HR>
+            <textarea id="hosts_file_text" class="form-control" rows="10">{{ all_the_text }}</textarea>
+            <button type="button" class="btn btn-primary col-xs-offset-10" onclick="update_hosts_file();">更新</button>
+        </div>
+        <div class="col-xs-8">
+            <HR>
+            {{ ansibleform.hidden_tag() }}
+            <div class="row col-xs-8 form-group">
+                    <div class="col-xs-4">
+                        {{ ansibleform.ansible_groupname(class="form-control", placeholder="输入Hosts组名") }}
+                    </div>
+                    <div class="col-xs-4">
+                        {{ ansibleform.ansible_shell(class="form-control", placeholder="输入命令") }}
+                    </div>
+                <div class="col-xs-2">
+                    <button class="btn btn-primary" value="执行">执行</button>
+                 </div>
+            </div>
+        </div>
+        <div class="col-xs-8">
+            <h5>{{ output }}</h5>
+        </div>
+    </div>
+</form>
+
+{% endblock %}
+
+

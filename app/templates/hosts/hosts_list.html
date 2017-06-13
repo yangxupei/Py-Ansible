@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+{% block content %}
+<script>
+        // 编辑表单
+    function get_edit_info($this)
+    {
+//        var index = $($this).parent("").parent().find("td:first").html();
+//        var ip = $($this).parent().parent().find("td:first").next().html();
+//        var host_name = $($this).parent().parent().find("td:first").next().next().html()
+        var md_ip_add = $($this).parent().parent("tr").find("td:eq(1)").html()
+        var md_app_name_cn = $($this).parent().parent("tr").find("td:eq(3)").html()
+        var md_app_platform = $($this).parent().parent("tr").find("td:eq(4)").html()
+        var md_machine_addr = $($this).parent().parent("tr").find("td:eq(5)").html()
+        var md_description = $($this).parent().parent("tr").find("td:eq(7)").html()
+
+        if(!$this)
+        {
+            alert('Error！');
+            return false;
+        }
+
+    $.ajax(
+    {
+         success:function ()
+            {
+                $("#md_ip_add").val(md_ip_add);
+                $("#md_app_name_cn").val(md_app_name_cn);
+                $("#md_app_platform").val(md_app_platform);
+                $("#md_machine_addr").val(md_machine_addr);
+                $("#md_description").val(md_description);
+            },
+         error:function()
+            {
+                alert('请求出错');
+            },
+          complete:function()
+            {
+                // $('#tips').hide();
+            }
+    });
+        return false;
+    }
+    
+    function update_host_info() {
+        var ip_add = $('#md_ip_add').val();
+        var app_name_cn = $('#md_app_name_cn').val();
+        var app_platform = $('#md_app_platform').val();
+        var machine_addr = $('#md_machine_addr').val();
+        var description = $('#md_description').val();
+        $.ajax({
+            type: "POST",
+            url: "/hosts_info/update",
+            data:{
+                "ip_add": ip_add,
+                "app_name_cn": app_name_cn,
+                "app_platform": app_platform,
+                "machine_addr": machine_addr,
+                "description": description
+            },
+
+            success: function(){
+                $(function() {
+                    $('#addUserModal').modal('hide')
+                });
+                swal({
+                    title: "更新成功！",
+                    text: "已录入数据库",
+                    timer: 500,
+                    showConfirmButton: false
+                },
+                        function () {
+                        setTimeout(function(){
+                            window.location.reload();
+                        }, 500);
+                });
+            },
+            error: function () {
+                alert("异常！");
+            },
+        })
+    }
+
+    function delete_info($this) {
+        var del_ip_add = $($this).parent().parent("tr").find("td:eq(1)").html()
+        var del_id = $($this).parent().parent("tr").find("td:eq(0)").html()
+        swal({
+                  title: "确定删除该主机？",
+                  text: "此操作会删除关于该主机的所有信息！",
+                  type: "warning",
+                  showCancelButton: true,
+                  confirmButtonColor: "#DD6B55",
+                  confirmButtonText: "确定",
+                  cancelButtonText: "取消",
+                  closeOnConfirm: false
+                },
+                function () {
+                    $.ajax({
+                        type: "POST",
+                        url: "/hosts_info/delhost",
+                        data:{
+                            "del_ip_add": del_ip_add
+                        }
+                    }).done(function (data) {
+                        swal("删除成功！", "已从数据库删除该主机", "success");
+                        $("#tr_"+del_id).remove();
+                    }).error(function (data) {
+                        swal("删除失败！", "请检查失败原因", "error");
+                    })
+                });
+    }
+
+</script>
+<HR>
+<form class="form-horizontal" role="form" action="" method="post" name="app_add">
+    {{ hostsform.hidden_tag() }}
+    <div class="row col-xs-12 form-group">
+            <div class="col-xs-2  col-xs-offset-8">
+                {{ hostsform.ip_address(class="form-control", placeholder="输入IP地址") }}
+            </div>
+        <div class="col-xs-2">
+            <button class="btn btn-info btn-search" style="margin-left:3px">查询</button>
+            <button type="button" class="btn btn-primary" disabled="disabled" value="更新">更新</button>
+         </div>
+    </div>
+</form>
+
+<div class="row">
+    <div class="col-md-12 col-md-offset-0">
+            <table align="center" class="table table-condensed table-bordered" data-toggle="table">
+              <!--<caption>服务器列表信息如下</caption>-->
+              <thead>
+                <tr class="info">
+                    <th>序号</th>
+                    <th>IP地址</th>
+                    <th>主机名</th>
+                    <th>应用名称</th>
+                    <th>所属平台</th>
+                    <th>机房位置</th>
+                    <th>运行状态</th>
+                    <th>备注</th>
+                    <th>操作</th>
+                </tr>
+              </thead>
+
+              <tbody>
+               {% for result in db_result %}
+                <tr id="tr_{{result[0]}}">
+                    <td>{{result[0]}}</td>
+                    <td>{{result[1]}}</td>
+                    <td>
+                        <a href="#" class="tooltip-test" data-toggle="tooltip" data-html="true" title="
+                        <div id='container' style='width:500px'>
+                            <div id='menu' style='background-color:#4876FF;width:60px;float:left;'>
+                                <font size='1'>系统版本</font><br>
+                                <font size='1'>系统内核</font><br>
+                                <font size='1'>CPU型号</font><br>
+                                <font size='1'>CPU个数</font><br>
+                                <font size='1'>CPU核数</font><br>
+                                <font size='1'>内存(MB)</font><br>
+                                <font size='1'>硬盘大小</font><br>
+                            </div>
+                            <div id='content' style='background-color:#4876FF;width:230px;float:left;'>
+                                <font size='1'>{{result[4]}}</font><br>
+                                <font size='1'>{{result[9]}}</font><br>
+                                <font size='1'>{{result[3]}}</font><br>
+                                <font size='1'>{{result[6]}}</font><br>
+                                <font size='1'>{{result[7]}}</font><br>
+                                <font size='1'>{{result[8]}}</font><br>
+                                <font size='1'>{{result[5]}}</font><br>
+                            </div>
+                         </div>">
+                            {{result[2]}}
+                        </a>
+                    </td>
+                    <td>{{result[10]}}</td>
+                    <td>{{result[11]}}</td>
+                    <td>{{result[12]}}</td>
+                    {% if result[13] == 0 %}
+                    <td>
+                        <a class="btn-success"><span class="glyphicon glyphicon-ok-circle"></span>正在运行</a>
+                    </td>
+                    {% elif result[13] == 1 %}
+                    <td>
+                        <a class="btn-danger"><span class="glyphicon glyphicon-remove-circle"></span>已经停止</a>
+                    </td>
+                    {% else %}
+                     <td>
+                        <a class="btn-primary"><span class="glyphicon glyphicon-ban-circle"></span>尚未使用</a>
+                    </td>
+                    {% endif %}
+                    <td>{{result[14]}}</td>
+                    <td class="col-md-2">
+                        <a href="#" class="btn btn-info btn-sm" disabled="disabled"><span class="glyphicon glyphicon-refresh"></span></a>
+                        <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" onclick="get_edit_info(this)" data-target="#addUserModal"><span class="glyphicon glyphicon-edit"></span>编辑</button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="delete_info(this)"><span class="glyphicon glyphicon-remove"></span>删除</button>
+                    </td>
+                        <script>
+                            $(function () { $("[data-toggle='tooltip']").tooltip(); });
+                        </script>
+                </tr>
+              {% endfor %}
+              </tbody>
+
+            </table>
+    </div>
+                                                                      <!-- 模态框（Modal） -->
+        <form method="post" action="" class="form-horizontal" role="form" id="form_data" onsubmit="" style="margin: 20px;">
+        <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">
+                            主机信息
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label for="md_ip_add" class="col-sm-2 control-label">IP地址</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" disabled="disabled" name="md_ip_add" value="{md_ip_add}" id="md_ip_add">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="md_app_name_cn" class="col-sm-2 control-label">应用名称</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="md_app_name_cn" value="{md_app_name_cn}" id="md_app_name_cn" placeholder="请输入应用名称">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="md_app_platform" class="col-sm-2 control-label">所属平台</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="md_app_platform" value="{md_app_platform}" id="md_app_platform" placeholder="请输入所属平台">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="md_machine_addr" class="col-sm-2 control-label">机房位置</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="md_machine_addr" value="{md_machine_addr}" id="md_machine_addr" placeholder="请输入机房位置">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="md_description" class="col-sm-2 control-label">备注</label>
+                                <div class="col-sm-9">
+                                    <textarea  class="form-control"  name="md_description" value="{md_description}" id="md_description" placeholder="备注"></textarea>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="update_host_info();">
+                            提交
+                        </button><span id="tip"> </span>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+        </form>
+</div>
+
+{% endblock %}
+

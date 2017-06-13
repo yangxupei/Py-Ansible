@@ -1,0 +1,16 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+{% block content %}
+<h1>查询主机状态信息</h1>
+<form action="" method="post" name="login">
+    {{ form.hidden_tag() }}
+    <p>
+        请输入主机IP:<br>
+        {{ form.host_ip(size=80) }}
+        {% for error in form.host_ip.errors %}
+          <span style="color: red;">[{{error}}]</span>
+        {% endfor %}<br>
+    </p>
+    <p><input type="submit" value="查询"></p>
+</form>
+{% endblock %}

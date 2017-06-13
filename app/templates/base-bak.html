@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <link href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="static/css/sweetalert.css">
+
+    <!-- 可选的Bootstrap主题文件（一般不使用） -->
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap-theme.min.css"></script>
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+    <script src="http://cdn.static.runoob.com/libs/angular.js/1.4.6/angular.min.js"></script>
+
+
+    <script src="static/js/sweetalert.min.js"></script>
+
+    <script src="static/js/echarts.js"></script>
+
+    <meta charset="UTF-8">
+    <title>AuTo 666</title>
+</head>
+<body>
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">AutoScripts</a>
+        </div>
+        <div>
+            <ul class="nav navbar-nav" contenteditable="false">
+                <li><a href="#">首页</a></li>
+                <!--<li><a href="/hosts_info">主机管理</a></li>-->
+                <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">主机管理 <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="/hosts_info">主机列表</a></li>
+                    <li class="divider">&nbsp;</li>
+                    <li><a href="/hosts_maintain">主机维护</a></li>
+                </ul>
+                </li>
+                <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">监控管理 <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="/hosts_graph">监控概况</a></li>
+                    <li class="divider">&nbsp;</li>
+                    <li><a href="/hosts_monitor">监控详情</a></li>
+                </ul>
+                </li>
+                <li class="dropdown disabled"><a class="dropdown-toggle" data-toggle="dropdown" href="#">待完善 <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">操作</a></li>
+                    <li><a href="#">设置栏目</a></li>
+                    <li><a href="#">更多设置</a></li>
+                    <li class="divider">&nbsp;</li>
+                    <li><a href="#">分割线</a></li>
+                </ul>
+                </li>
+            </ul>
+        </div>
+        </div>
+    </nav>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+    {% for message in messages %}
+        <li>{{ message }} </li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+
+</body>
+</html>

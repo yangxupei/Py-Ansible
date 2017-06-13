@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% block content %}
+<script type="text/javascript">
+    $(function () {
+        $("#des .btn").click(function(e){
+            e.preventDefault();
+//            alert($("#des .btn").index(this))
+//            $.ajax({
+//                type: "POST",
+//                url: "/hosts_monitor/search",
+//                data:{
+//                    "button_index": $("#des .btn").index(this)
+//                },
+//                success: function(){
+//                    alert("成功！");
+//                },
+//                error: function () {
+//                    alert("异常！");
+//                },
+//            })
+            $.post("/hosts_monitor/search", {'button_index' : $("#des .btn").index(this)},
+                    function(data){
+//                         $("#content_banner").html(data);
+//                        $("#base_index").html(data);
+                    }
+            );
+        });
+    });
+
+</script>
+
+
+<div class="col-xs-7 col-xs-offset-1" id="des">
+    <p class="btn btn-success" href="#">在线机器：{{ online_nu[0][0] }}</p>
+    <a class="btn btn-danger" href="#">连通性异常：{{ offline_nu[0][0] }}</a>
+    <a class="btn btn-warning" href="#">内存警告：{{ mem_rate_nu[0][0] }}</a>
+    <a class="btn btn-warning" href="#">磁盘警告：{{ disk_rate_nu[0][0] }}</a>
+    <a class="btn btn-warning" href="#">Swap警告：{{ swap_rate_nu[0][0] }}</a>
+</div>
+
+<form class="form-horizontal col-xs-offset-8" role="form" action="" method="post" name="app_search">
+    {{ hostsform.hidden_tag() }}
+    <div class="row col-xs-10 form-group">
+            <!--<label class="col-xs-4 control-label">服务器IP</label>-->
+        <div class="col-xs-8">
+            {{ hostsform.ip_address(class="form-control", placeholder="输入IP地址") }}
+        </div>
+         <div class="col-xs-2">
+            <button type="submit" class="btn btn-primary btn-sm" value="搜索">
+                <span class="glyphicon glyphicon-search"></span>搜索</button>
+         </div>
+    </div>
+</form>
+
+<div class="row" id="monitor_list">
+    <div class="col-md-10 col-md-offset-1">
+            <table align="center" class="table table-condensed table-bordered" data-toggle="table">
+              <caption>监控信息列表如下：单位（百分比）</caption>
+              <thead>
+                <tr class="info">
+                    <th>IP地址</th>
+                    <th>主机名</th>
+                    <th>CPU</th>
+                    <th>内存</th>
+                    <th>磁盘</th>
+                    <th>Swap</th>
+                    <th>健康状态</th>
+                    <th>操作</th>
+                </tr>
+              </thead>
+             {% for result in db_result %}
+              <tbody>
+                <tr>
+                    <td>{{result[0]}}</td>
+                    <td>{{result[1]}}</td>
+                    <td>待更新</td>
+                    {% if result[8] > 75 %}
+                    <td class="btn-warning">
+                        <a class="tooltip-test" data-toggle="tooltip" data-html="true" title="
+                        <div id='container' style='width:300px'>
+                            <div id='menu' style='background-color:#4876FF;width:60px;float:left;'>
+                                <font size='1'>总内存</font><br>
+                                <font size='1'>剩余内存</font><br>
+                            </div>
+                            <div id='content' style='background-color:#4876FF;width:130px;float:left;'>
+                                <font size='1'>{{result[2]}} MB</font><br>
+                                <font size='1'>{{result[3]}} MB</font><br>
+                            </div>
+                         </div>">
+                        {{result[8]}}%
+                        </a>
+                    </td>
+                    {% elif result[8] > 85 %}
+                    <td class="btn-danger">
+                        <a class="tooltip-test" data-toggle="tooltip" data-html="true" title="
+                        <div id='container' style='width:300px'>
+                            <div id='menu' style='background-color:#4876FF;width:60px;float:left;'>
+                                <font size='1'>总内存</font><br>
+                                <font size='1'>剩余内存</font><br>
+                            </div>
+                            <div id='content' style='background-color:#4876FF;width:130px;float:left;'>
+                                <font size='1'>{{result[2]}} MB</font><br>
+                                <font size='1'>{{result[3]}} MB</font><br>
+                            </div>
+                         </div>">
+                        {{result[8]}}%
+                        </a>
+                    </td>
+                    {% else %}
+                    <td>
+                        <a class="tooltip-test" data-toggle="tooltip" data-html="true" title="
+                        <div id='container' style='width:300px'>
+                            <div id='menu' style='background-color:#4876FF;width:60px;float:left;'>
+                                <font size='1'>总内存</font><br>
+                                <font size='1'>剩余内存</font><br>
+                            </div>
+                            <div id='content' style='background-color:#4876FF;width:130px;float:left;'>
+                                <font size='1'>{{result[2]}} MB</font><br>
+                                <font size='1'>{{result[3]}} MB</font><br>
+                            </div>
+                         </div>">
+                        {{result[8]}}%
+                        </a>
+                    </td>
+                    {% endif %}
+
+                    {% if result[10] > 75 %}
+                    <td class="btn-warning">
+                        <a class="tooltip-test" data-toggle="tooltip" data-html="true" title="
+                        <div id='container' style='width:300px'>
+                            <div id='menu' style='background-color:#4876FF;width:60px;float:left;'>
+                                <font size='1'>总空间</font><br>
+                                <font size='1'>剩余空间</font><br>
+                            </div>
+                            <div id='content' style='background-color:#4876FF;width:130px;float:left;'>
+                                <font size='1'>{{result[4]}} MB</font><br>
+                                <font size='1'>{{result[5]}} MB</font><br>
+                            </div>
+                         </div>">
+                        {{result[10]}}%
+                        </a>
+                    </td>
+                    {% elif result[10] > 85 %}
+                    <td class="btn-danger">
+                        <a class="tooltip-test" data-toggle="tooltip" data-html="true" title="
+                        <div id='container' style='width:300px'>
+                            <div id='menu' style='background-color:#4876FF;width:60px;float:left;'>
+                                <font size='1'>总空间</font><br>
+                                <font size='1'>剩余空间</font><br>
+                            </div>
+                            <div id='content' style='background-color:#4876FF;width:130px;float:left;'>
+                                <font size='1'>{{result[4]}} MB</font><br>
+                                <font size='1'>{{result[5]}} MB</font><br>
+                            </div>
+                         </div>">
+                        {{result[10]}}%
+                        </a>
+                    </td>
+                    {% else %}
+                    <td>
+                        <a class="tooltip-test" data-toggle="tooltip" data-html="true" title="
+                        <div id='container' style='width:300px'>
+                            <div id='menu' style='background-color:#4876FF;width:60px;float:left;'>
+                                <font size='1'>总空间</font><br>
+                                <font size='1'>剩余空间</font><br>
+                            </div>
+                            <div id='content' style='background-color:#4876FF;width:130px;float:left;'>
+                                <font size='1'>{{result[4]}} MB</font><br>
+                                <font size='1'>{{result[5]}} MB</font><br>
+                            </div>
+                         </div>">
+                        {{result[10]}}%
+                        </a>
+                    </td>
+                    {% endif %}
+
+                    {% if result[9] > 75 %}
+                    <td class="btn-warning">
+                        <a class="tooltip-test" data-toggle="tooltip" data-html="true" title="
+                        <div id='container' style='width:300px'>
+                            <div id='menu' style='background-color:#4876FF;width:60px;float:left;'>
+                                <font size='1'>总大小</font><br>
+                                <font size='1'>剩余大小</font><br>
+                            </div>
+                            <div id='content' style='background-color:#4876FF;width:130px;float:left;'>
+                                <font size='1'>{{result[6]}} MB</font><br>
+                                <font size='1'>{{result[7]}} MB</font><br>
+                            </div>
+                         </div>">
+                        {{result[9]}}%
+                        </a>
+                    </td>
+                    {% elif result[9] > 85 %}
+                    <td class="btn-danger">
+                        <a class="tooltip-test" data-toggle="tooltip" data-html="true" title="
+                        <div id='container' style='width:300px'>
+                            <div id='menu' style='background-color:#4876FF;width:60px;float:left;'>
+                                <font size='1'>总大小</font><br>
+                                <font size='1'>剩余大小</font><br>
+                            </div>
+                            <div id='content' style='background-color:#4876FF;width:130px;float:left;'>
+                                <font size='1'>{{result[6]}} MB</font><br>
+                                <font size='1'>{{result[7]}} MB</font><br>
+                            </div>
+                         </div>">
+                        {{result[9]}}%
+                        </a>
+                    </td>
+                    {% else %}
+                    <td>
+                        <a class="tooltip-test" data-toggle="tooltip" data-html="true" title="
+                        <div id='container' style='width:300px'>
+                            <div id='menu' style='background-color:#4876FF;width:60px;float:left;'>
+                                <font size='1'>总大小</font><br>
+                                <font size='1'>剩余大小</font><br>
+                            </div>
+                            <div id='content' style='background-color:#4876FF;width:130px;float:left;'>
+                                <font size='1'>{{result[6]}} MB</font><br>
+                                <font size='1'>{{result[7]}} MB</font><br>
+                            </div>
+                         </div>">
+                        {{result[9]}}%
+                        </a>
+                    </td>
+                    {% endif %}
+                    {% if result[11] == 0 %}
+                    <td class="btn-success">
+                        <span class="glyphicon glyphicon-ok-circle"></span>正在运行
+                    </td>
+                    {% elif result[11] == 1 %}
+                    <td class="btn-danger">
+                        <span class="glyphicon glyphicon-remove-circle"></span>连通性异常
+                    </td>
+                    {% else %}
+                     <td class="btn-primary">
+                        <span class="glyphicon glyphicon-ban-circle"></span>尚未检测
+                    </td>
+                    {% endif %}
+                    <td class="col-md-2">
+                        <button type="button" class="btn btn-info btn-sm" disabled="disabled" onclick=""><span class="glyphicon glyphicon-eye-open"></span> 查看</button>
+                    </td>
+                        <script>
+                            $(function () { $("[data-toggle='tooltip']").tooltip(); });
+                        </script>
+                </tr>
+              </tbody>
+             {% endfor %}
+            </table>
+    </div>
+</div>
+{% endblock %}
+
