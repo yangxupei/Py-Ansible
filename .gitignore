@@ -1,1 +1,7 @@
 .idea
+app/__init__.pyc
+app/forms.pyc
+app/views.pyc
+config.pyc
+tmp/
+test/
