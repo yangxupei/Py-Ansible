@@ -1,18 +1,36 @@
 # encoding=UTF-8
 import commands
+import threading
 
 import re
 from flask import request
 import shutil
 import time
 import os
+import logging
+from app.models import ansible_play
 from app import app
 from flask import render_template
 from app.models import MysqlDb_Connection
 from app.forms import HostsForm, AnsibleForm
+from app.hosts.update_hosts import update_ansible_hosts
 
 dbconfig = {'host': '192.168.1.220', 'port': 3306, 'user': 'root', 'passwd': 'Asd@1234', 'db': 'ansible_tools',
             'charset': 'utf8'}
+
+def monitor_timer():
+    play_book = update_ansible_hosts('/tools/ansible/test.yml')
+    play_book.run()
+    play_book.get_result()
+
+    global timer
+    timer = threading.Timer(30.0, monitor_timer)
+    timer.start()
+
+
+timer = threading.Timer(10.0, monitor_timer)
+timer.start()
+
 
 @app.route('/hosts_info', methods=['GET', 'POST'])
 def hosts_list():
@@ -81,7 +99,7 @@ def del_host():
     except:
         db.rollback()
     db.close()
-    return render_template('hosts/hosts_list.html',  hostsform=hostsform)
+    return render_template('hosts/hosts_list.html', hostsform=hostsform)
 
 
 @app.route('/hosts_maintain', methods=['GET', 'POST'])
@@ -117,6 +135,26 @@ def hosts_maintain():
         ansible_groupname = ansibleform.ansible_groupname.data
         ansible_shell = ansibleform.ansible_shell.data
         (status, output) = commands.getstatusoutput('ansible ' + ansible_groupname + ' ' + ansible_shell)
-        return render_template('hosts/hosts_maintain.html', ansibleform=ansibleform, all_the_text=all_the_text, file_list=file_list, output=output)
+        return render_template('hosts/hosts_maintain.html', ansibleform=ansibleform, all_the_text=all_the_text,
+                               file_list=file_list, output=output)
 
-    return render_template('hosts/hosts_maintain.html', ansibleform=ansibleform, all_the_text=all_the_text, file_list=file_list)
+    return render_template('hosts/hosts_maintain.html', ansibleform=ansibleform, all_the_text=all_the_text,
+                           file_list=file_list)
+
+
+@app.route('/ansible_add_hosts', methods=['GET', 'POST'])
+def ansible_add_hosts():
+    # if __name__ == '__main__':
+    play_book = ansible_play('/tools/ansible/test.yml')
+    play_book.run()
+    play_book.get_result()
+
+    db = MysqlDb_Connection(dbconfig)
+    hostsform = HostsForm()
+    sql = "select id, ip_eth0, host_name, cpu, sysinfo, disk, cpu_count, cpu_cores, mem, \
+                      os_kernel, app_name_cn, app_platform, machine_addr, app_status,description \
+                      from app_hosts_info"
+    db.query(sql)
+    db_result = db.fetchAllRows()
+    db.close()
+    return render_template('hosts/hosts_list.html', db_result=db_result, hostsform=hostsform)

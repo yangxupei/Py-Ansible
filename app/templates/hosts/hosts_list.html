@@ -40,6 +40,30 @@
     });
         return false;
     }
+
+    function ansible_add_hosts() {
+        $.ajax({
+            type: "POST",
+            url: "/ansible_add_hosts",
+            data:{},
+            success: function(){
+                swal({
+                    title: "更新成功！",
+                    text: "已录入数据库",
+                    timer: 500,
+                    showConfirmButton: false
+                },
+                        function () {
+                        setTimeout(function(){
+                            window.location.reload();
+                        }, 500);
+                });
+            },
+            error: function () {
+                alert("异常！");
+            },
+        })
+    }
     
     function update_host_info() {
         var ip_add = $('#md_ip_add').val();
@@ -119,7 +143,7 @@
             </div>
         <div class="col-xs-2">
             <button class="btn btn-info btn-search" style="margin-left:3px">查询</button>
-            <button type="button" class="btn btn-primary" disabled="disabled" value="更新">更新</button>
+            <button type="button" class="btn btn-primary" onclick="ansible_add_hosts();" value="更新">更新</button>
          </div>
     </div>
 </form>
