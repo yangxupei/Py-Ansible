@@ -9,19 +9,21 @@
 //    });
 //  });
 
-    function update_hosts_file() {
-        var hosts_file_text = $('#hosts_file_text').val();
+    function update_file(bean) {
+        var yml_name = $(bean).text();
+        var file_text = $('#file_text').val();
         $.ajax({
             type: "POST",
             url: "/hosts_maintain",
             data:{
-                "hosts_file_text": hosts_file_text
+                "file_text": file_text,
+                "yml_name": yml_name
             },
 
             success: function(){
                 swal({
                     title: "更新成功！",
-                    text: "已写入hosts文件",
+                    text: "已写入文件",
                     timer: 500,
                     showConfirmButton: false
                 },
@@ -45,17 +47,34 @@
             );
         });
     });
+
+    function yml(bean) {
+        var yml_name = $(bean).text();
+        $.ajax({
+            type: "POST",
+            url: "/hosts_maintain_yml",
+            data:{
+                "yml_name": yml_name
+            },
+            success: function(data){
+                $("#file_text").val(data.all_the_text);
+            },
+            error: function () {
+                alert("异常！");
+            },
+        })
+    }
 </script>
 
 <form role="form" action="" method="post">
     <div class="row">
         <div class="col-xs-4 col-xs-offset-0" id="des">
             <ul class="nav navbar-nav" contenteditable="false">
-                    <li><a href="#">Hosts文件信息</a></li>
+                    <li><a href="/hosts_maintain">Hosts文件信息</a></li>
                     <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">YML文件信息 <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                         {% for file_name in file_list %}
-                        <li><a href="#">{{ file_name }}</a></li>
+                        <li><a href="#" onclick="yml(this);">{{ file_name }}</a></li>
                         {% endfor %}
                     </ul>
                     </li>
@@ -70,8 +89,8 @@
     <div class="row">
         <div class="col-xs-4">
             <HR>
-            <textarea id="hosts_file_text" class="form-control" rows="10">{{ all_the_text }}</textarea>
-            <button type="button" class="btn btn-primary col-xs-offset-10" onclick="update_hosts_file();">更新</button>
+            <textarea id="file_text" class="form-control" rows="10">{{ all_the_text }}</textarea>
+            <button type="button" class="btn btn-primary col-xs-offset-10" onclick="update_file();">更新</button>
         </div>
         <div class="col-xs-8">
             <HR>

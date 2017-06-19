@@ -15,7 +15,7 @@ dbconfig = {'host': '192.168.1.220', 'port': 3306, 'user': 'root', 'passwd': 'As
 
 # 定时器
 def monitor_timer():
-    email_send_user = (' zhouxia@oriental-finance.com', ' zhengyong@oriental-finance.com')
+    email_send_user = (' zhouxia@oriental-finance.com',)
 
     db = MysqlDb_Connection(dbconfig)
 
@@ -42,7 +42,8 @@ def monitor_timer():
             recovery_sql = "UPDATE app_alarm_statistics SET ping_warnning_c = 0 WHERE ip_eth0 = %(ip_eth0)s"
             db.update(recovery_sql, data)
             for esu in email_send_user:
-                (status, output) = commands.getstatusoutput('echo ' + text_recovery + ' |mutt -s ' + title_recovery + str(esu))
+                (status, output) = commands.getstatusoutput(
+                    'echo ' + text_recovery + ' |mutt -s ' + title_recovery + str(esu))
                 if status == 0:
                     logging.info(text_recovery + '  邮件通知 Success：' + esu)
                 else:
@@ -108,7 +109,8 @@ def monitor_timer():
             recovery_sql = "UPDATE app_alarm_statistics SET mem_warnning_c = 0 WHERE ip_eth0 = %(ip_eth0)s"
             db.update(recovery_sql, data)
             for esu in email_send_user:
-                (status, output) = commands.getstatusoutput('echo ' + text_recovery + ' |mutt -s ' + title_recovery + str(esu))
+                (status, output) = commands.getstatusoutput(
+                    'echo ' + text_recovery + ' |mutt -s ' + title_recovery + str(esu))
                 if status == 0:
                     logging.info(text_recovery + '  邮件通知 Success：' + esu)
                 else:
@@ -174,7 +176,8 @@ def monitor_timer():
             recovery_sql = "UPDATE app_alarm_statistics SET disk_warnning_c = 0 WHERE ip_eth0 = %(ip_eth0)s"
             db.update(recovery_sql, data)
             for esu in email_send_user:
-                (status, output) = commands.getstatusoutput('echo ' + text_recovery + ' |mutt -s ' + title_recovery + str(esu))
+                (status, output) = commands.getstatusoutput(
+                    'echo ' + text_recovery + ' |mutt -s ' + title_recovery + str(esu))
                 if status == 0:
                     logging.info(text_recovery + '  邮件通知 Success：' + esu)
                 else:
@@ -240,7 +243,8 @@ def monitor_timer():
             recovery_sql = "UPDATE app_alarm_statistics SET swap_warnning_c = 0 WHERE ip_eth0 = %(ip_eth0)s"
             db.update(recovery_sql, data)
             for esu in email_send_user:
-                (status, output) = commands.getstatusoutput('echo ' + text_recovery + ' |mutt -s ' + title_recovery + str(esu))
+                (status, output) = commands.getstatusoutput(
+                    'echo ' + text_recovery + ' |mutt -s ' + title_recovery + str(esu))
                 if status == 0:
                     logging.info(text_recovery + '  邮件通知 Success：' + esu)
                 else:
@@ -287,13 +291,15 @@ def monitor_timer():
 
     logging.info('*************服务器状态巡检任务执行结束*************')
 
-    global timer
-    timer = threading.Timer(60.0, monitor_timer)
-    timer.start()
 
-
-timer = threading.Timer(5.0, monitor_timer)
-timer.start()
+# 关闭巡检定时器
+#     global timer
+#     timer = threading.Timer(60.0, monitor_timer)
+#     timer.start()
+#
+#
+# timer = threading.Timer(5.0, monitor_timer)
+# timer.start()
 
 
 @app.route('/hosts_monitor', methods=['GET', 'POST'])

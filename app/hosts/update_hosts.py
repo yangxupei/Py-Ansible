@@ -148,7 +148,7 @@ class update_ansible_hosts():
                 db.commit()
             except:
                 db.rollback()
-            os.system('echo "' + str(host) + '网络不可达，连通性异常" |mutt -s "连通性异常" zhouxia@oriental-finance.com')
+            # os.system('echo "' + str(host) + '网络不可达，连通性异常" |mutt -s "连通性异常" zhouxia@oriental-finance.com')
             db.close()
 
 
@@ -190,7 +190,7 @@ class update_ansible_hosts():
             swap_rate = "%.1f" % ((1 - (swap_free / swap_total))*100)
             disk_rate = "%.1f" % ((1 - (disk_free / disk_total))*100)
 
-            os.system('echo "' + str(ipadd_in) + ' 内存使用率 ' + str(mem_rate) + '%" |mutt -s "测试内存使用率" zhouxia@oriental-finance.com')
+            # os.system('echo "' + str(ipadd_in) + ' 内存使用率 ' + str(mem_rate) + '%" |mutt -s "测试内存使用率" zhouxia@oriental-finance.com')
 
             data['mem_rate'] = mem_rate
             data['swap_rate'] = swap_rate
