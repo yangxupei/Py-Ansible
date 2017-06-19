@@ -9,29 +9,37 @@
 //    });
 //  });
 
-    function update_file(bean) {
-        var yml_name = $(bean).text();
+    function update_file() {
+//        var yml_name = $(bean).text();
         var file_text = $('#file_text').val();
+        var fileType = $('#fileType').val();
+//        var yml_name  = fileType;
         $.ajax({
             type: "POST",
-            url: "/hosts_maintain",
+            url: "/host_update",
             data:{
                 "file_text": file_text,
-                "yml_name": yml_name
+                "fileType": fileType,
+//                "yml_name": yml_name
             },
 
-            success: function(){
-                swal({
-                    title: "更新成功！",
-                    text: "已写入文件",
-                    timer: 500,
-                    showConfirmButton: false
-                },
-                        function () {
-                        setTimeout(function(){
-                            window.location.reload();
-                        }, 500);
-                });
+            success: function(data){
+                if(data.success){
+                    swal({
+                        title: "更新成功！",
+                        text: "已写入文件",
+                        timer: 500,
+                        showConfirmButton: false
+                    });
+                }else{
+                    swal({
+                        title: "更新失败！",
+                        text: "已写入文件",
+                        timer: 500,
+                        showConfirmButton: false
+                    });
+                }
+
             },
             error: function () {
                 alert("异常！");
@@ -58,6 +66,7 @@
             },
             success: function(data){
                 $("#file_text").val(data.all_the_text);
+                $("#fileType").val(yml_name);
             },
             error: function () {
                 alert("异常！");
@@ -67,6 +76,7 @@
 </script>
 
 <form role="form" action="" method="post">
+    <input type="hidden" id="fileType" value="hosts">
     <div class="row">
         <div class="col-xs-4 col-xs-offset-0" id="des">
             <ul class="nav navbar-nav" contenteditable="false">

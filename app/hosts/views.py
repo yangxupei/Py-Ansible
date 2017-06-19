@@ -8,21 +8,23 @@ import shutil
 import time
 import os
 import logging
-from app.models import ansible_play
+# from app.models import ansible_play
 from app import app
 from flask import render_template
 from app.models import MysqlDb_Connection
 from app.forms import HostsForm, AnsibleForm
-from app.hosts.update_hosts import update_ansible_hosts
+# from app.hosts.update_hosts import update_ansible_hosts
 
 dbconfig = {'host': '192.168.1.220', 'port': 3306, 'user': 'root', 'passwd': 'Asd@1234', 'db': 'ansible_tools',
             'charset': 'utf8'}
+hosts_file = "D:/data/ansible/hosts"
+file_dir = 'D:/data/ansible/'
 
 
-def monitor_timer():
-    play_book = update_ansible_hosts('/tools/ansible/test.yml')
-    play_book.run()
-    play_book.get_result()
+# def monitor_timer():
+    # play_book = update_ansible_hosts('/tools/ansible/test.yml')
+    # play_book.run()
+    # play_book.get_result()
 
 
 # 关闭更新主机信息定时器
@@ -108,21 +110,21 @@ def del_host():
 @app.route('/hosts_maintain', methods=['GET', 'POST'])
 def hosts_maintain():
     ansibleform = AnsibleForm()
-
-    file_dir = '/tools/ansible'
-    file_dir = os.listdir(file_dir)
+    file_names = os.listdir(file_dir)
     file_list = []
-    for i in file_dir:
+    for i in file_names:
         # os.path.splitext():分离文件名与扩展名
         if os.path.splitext(i)[1] == '.yml':
             file_list.append(i)
 
     yml_name = request.form.get('yml_name')
+    hosts_file = 'D:/data/ansible/hosts'
+
     if yml_name is not None:
         logging.info('++++++++++++++++=')
         logging.info(yml_name)
         if yml_name != "":
-            yml_file = '/tools/ansible/' + yml_name
+            yml_file = file_dir + yml_name
             logging.info(yml_name)
             file_text = request.form.get('file_text')
             logging.info("修改YML文件，修改后内容为：")
@@ -138,11 +140,10 @@ def hosts_maintain():
                 # shutil.copyfile(hosts_file, bak_hosts_file)
                 logging.info("修改hosts文件，修改后内容为：")
                 logging.info(file_text)
-                f = file('/tools/ansible/hosts', 'w+')
+                f = file(hosts_file, 'w+')
                 f.writelines(file_text)
                 f.close()
 
-    hosts_file = '/tools/ansible/hosts'
     # bak_hosts_file = '/data/appbak/hosts_' + time.strftime('%Y%m%d%H%M%S')
     file_object = open(hosts_file)
     try:
@@ -162,11 +163,46 @@ def hosts_maintain():
                            file_list=file_list)
 
 
+@app.route('/host_update', methods=['POST'])
+def hostUpdate():
+    try:
+        fileType = request.form.get('fileType')
+        if fileType=="hosts":
+            file_text = request.form.get('file_text')
+            if file_text is not None:
+                # shutil.copyfile(hosts_file, bak_hosts_file)
+                logging.info("修改hosts文件，修改后内容为：")
+                logging.info(file_text)
+                f = file(hosts_file, 'w+')
+                f.writelines(file_text)
+                f.close()
+        else:
+            # ymlName = request.form.get("yml_name")
+            if fileType is not None:
+                logging.info('++++++++++++++++=')
+            logging.info(fileType)
+            if fileType != "":
+                yml_file = file_dir + fileType
+                logging.info(fileType)
+                file_text = request.form.get('file_text')
+                logging.info("修改YML文件，修改后内容为：")
+                # logging.info(file_text)
+                logging.info(file_text)
+                if file_text is not None:
+                    f = file(yml_file, 'w+')
+                    # f.write(file_text)
+                    f.writelines(file_text)
+                    f.close()
+        return jsonify({"success": "true"})
+    except Exception as err:
+        logging.error(err)
+        return jsonify({"success": "false"})
+
 @app.route('/hosts_maintain_yml', methods=['GET', 'POST'])
 def hosts_maintain_yml():
     yml_name = request.form.get('yml_name')
     if yml_name is not None:
-        yml_file = '/tools/ansible/' + yml_name
+        yml_file = 'D:/data/ansible/' + yml_name
         logging.info(yml_file)
         # bak_hosts_file = '/data/appbak/hosts_' + time.strftime('%Y%m%d%H%M%S')
         file_object = open(yml_file)
@@ -183,9 +219,9 @@ def hosts_maintain_yml():
 @app.route('/ansible_add_hosts', methods=['GET', 'POST'])
 def ansible_add_hosts():
     # if __name__ == '__main__':
-    play_book = ansible_play('/tools/ansible/test.yml')
-    play_book.run()
-    play_book.get_result()
+    # play_book = ansible_play('/tools/ansible/test.yml')
+    # play_book.run()
+    # play_book.get_result()
 
     db = MysqlDb_Connection(dbconfig)
     hostsform = HostsForm()

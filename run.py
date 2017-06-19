@@ -13,6 +13,6 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(levelname)s %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S',
-                        filename='/home/maven/auto666_backup.log',
+                        filename='D:/logs/auto666_backup.log',
                         filemode='a')
     app.run(host="0.0.0.0", debug=False)
