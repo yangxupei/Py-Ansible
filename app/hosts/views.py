@@ -109,38 +109,28 @@ def del_host():
 def hosts_maintain():
     ansibleform = AnsibleForm()
 
-    file_dir = '/tools/ansible'
-    file_dir = os.listdir(file_dir)
+    file_dir = '/tools/ansible/'
+    files = os.listdir(file_dir)
     file_list = []
-    for i in file_dir:
+    for i in files:
         # os.path.splitext():分离文件名与扩展名
         if os.path.splitext(i)[1] == '.yml':
             file_list.append(i)
 
     yml_name = request.form.get('yml_name')
-    if yml_name is not None:
-        logging.info('++++++++++++++++=')
+    if yml_name is None:
+        logging.info("无获取hosts、yml文件动作")
+    else:
+        yml_file = file_dir + yml_name
         logging.info(yml_name)
-        if yml_name != "":
-            yml_file = '/tools/ansible/' + yml_name
-            logging.info(yml_name)
-            file_text = request.form.get('file_text')
-            logging.info("修改YML文件，修改后内容为：")
-            logging.info(file_text)
-            logging.info(file_text)
-            if file_text is not None:
-                f = file(yml_file, 'w+')
-                f.writelines(file_text)
-                f.close()
-        else:
-            file_text = request.form.get('file_text')
-            if file_text is not None:
-                # shutil.copyfile(hosts_file, bak_hosts_file)
-                logging.info("修改hosts文件，修改后内容为：")
-                logging.info(file_text)
-                f = file('/tools/ansible/hosts', 'w+')
-                f.writelines(file_text)
-                f.close()
+        file_text = request.form.get('file_text')
+        logging.info(file_text)
+        logging.info("修改" + str(yml_name) + "文件，修改后内容为：")
+        logging.info(file_text)
+        if file_text is not None:
+            f = file(yml_file, 'w+')
+            f.writelines(file_text)
+            f.close()
 
     hosts_file = '/tools/ansible/hosts'
     # bak_hosts_file = '/data/appbak/hosts_' + time.strftime('%Y%m%d%H%M%S')

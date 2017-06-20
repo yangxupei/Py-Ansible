@@ -10,8 +10,8 @@
 //  });
 
     function update_file(bean) {
-        var yml_name = $(bean).text();
         var file_text = $('#file_text').val();
+        var yml_name = $('#fileName').val();
         $.ajax({
             type: "POST",
             url: "/hosts_maintain",
@@ -58,6 +58,7 @@
             },
             success: function(data){
                 $("#file_text").val(data.all_the_text);
+                $("#fileName").val(yml_name);
             },
             error: function () {
                 alert("异常！");
@@ -67,6 +68,7 @@
 </script>
 
 <form role="form" action="" method="post">
+    <input type="hidden" id="fileName" value="hosts">
     <div class="row">
         <div class="col-xs-4 col-xs-offset-0" id="des">
             <ul class="nav navbar-nav" contenteditable="false">

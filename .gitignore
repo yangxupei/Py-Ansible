@@ -5,3 +5,4 @@ app/views.pyc
 config.pyc
 tmp/
 test/
+*.pyc
