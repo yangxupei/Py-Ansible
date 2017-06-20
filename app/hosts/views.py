@@ -8,12 +8,12 @@ import shutil
 import time
 import os
 import logging
-# from app.models import ansible_play
+from app.models import ansible_play
 from app import app
 from flask import render_template
 from app.models import MysqlDb_Connection
 from app.forms import HostsForm, AnsibleForm
-# from app.hosts.update_hosts import update_ansible_hosts
+from app.hosts.update_hosts import update_ansible_hosts
 
 dbconfig = {'host': '192.168.1.220', 'port': 3306, 'user': 'root', 'passwd': 'Asd@1234', 'db': 'ansible_tools',
             'charset': 'utf8'}
@@ -21,10 +21,10 @@ hosts_file = "D:/data/ansible/hosts"
 file_dir = 'D:/data/ansible/'
 
 
-# def monitor_timer():
-    # play_book = update_ansible_hosts('/tools/ansible/test.yml')
-    # play_book.run()
-    # play_book.get_result()
+def monitor_timer():
+    play_book = update_ansible_hosts('/tools/ansible/test.yml')
+    play_book.run()
+    play_book.get_result()
 
 
 # 关闭更新主机信息定时器
@@ -110,39 +110,29 @@ def del_host():
 @app.route('/hosts_maintain', methods=['GET', 'POST'])
 def hosts_maintain():
     ansibleform = AnsibleForm()
-    file_names = os.listdir(file_dir)
+
+    file_dir = '/tools/ansible/'
+    files = os.listdir(file_dir)
     file_list = []
-    for i in file_names:
+    for i in files:
         # os.path.splitext():分离文件名与扩展名
         if os.path.splitext(i)[1] == '.yml':
             file_list.append(i)
 
     yml_name = request.form.get('yml_name')
-    hosts_file = 'D:/data/ansible/hosts'
-
-    if yml_name is not None:
-        logging.info('++++++++++++++++=')
+    if yml_name is None:
+        logging.info("无获取hosts、yml文件动作")
+    else:
+        yml_file = file_dir + yml_name
         logging.info(yml_name)
-        if yml_name != "":
-            yml_file = file_dir + yml_name
-            logging.info(yml_name)
-            file_text = request.form.get('file_text')
-            logging.info("修改YML文件，修改后内容为：")
-            logging.info(file_text)
-            logging.info(file_text)
-            if file_text is not None:
-                f = file(yml_file, 'w+')
-                f.writelines(file_text)
-                f.close()
-        else:
-            file_text = request.form.get('file_text')
-            if file_text is not None:
-                # shutil.copyfile(hosts_file, bak_hosts_file)
-                logging.info("修改hosts文件，修改后内容为：")
-                logging.info(file_text)
-                f = file(hosts_file, 'w+')
-                f.writelines(file_text)
-                f.close()
+        file_text = request.form.get('file_text')
+        logging.info(file_text)
+        logging.info("修改" + str(yml_name) + "文件，修改后内容为：")
+        logging.info(file_text)
+        if file_text is not None:
+            f = file(yml_file, 'w+')
+            f.writelines(file_text)
+            f.close()
 
     # bak_hosts_file = '/data/appbak/hosts_' + time.strftime('%Y%m%d%H%M%S')
     file_object = open(hosts_file)
